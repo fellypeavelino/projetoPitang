@@ -5,6 +5,7 @@
  */
 package com.pitang.api.pintang.controllers;
 
+import com.pitang.api.pintang.config.jwt.JWTUtil;
 import com.pitang.api.pintang.dto.LoginDto;
 import com.pitang.api.pintang.dto.UserDto;
 import com.pitang.api.pintang.entities.Phone;
@@ -13,6 +14,8 @@ import com.pitang.api.pintang.services.PhoneService;
 import com.pitang.api.pintang.services.UserService;
 import com.pitang.api.pintang.util.Util;
 import com.pitang.api.pintang.validation.UserValidation;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +69,8 @@ public class UserController {
                 p.setUser(u);
                 ps.persist(p);
             }
+            String token = JWTUtil.create(u.getEmail());
+            result = token;
         } catch (DataIntegrityViolationException | HibernateException e) {
             result = e.getMessage();
             if(e.getClass().getName() == "org.springframework.dao.DataIntegrityViolationException"){
@@ -90,6 +95,8 @@ public class UserController {
         User u = null;
         try {
             u = us.findByEmailPassword(ld.getEmail(), ld.getPassword());
+            String token = JWTUtil.create(u.getEmail());
+            result = token;
         } catch (DataIntegrityViolationException | HibernateException e) {
             result = e.getMessage();
             return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
@@ -98,6 +105,12 @@ public class UserController {
     }    
     
     
+    @GetMapping("me")
+    public String me(HttpServletResponse response, HttpServletRequest request){
+        request.getHeader("Authorization");
+        return "teste";
+    }  
+
     @GetMapping("teste")
     public String teste(){
         return "teste";
