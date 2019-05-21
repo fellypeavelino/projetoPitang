@@ -5,7 +5,7 @@
  */
 package com.pitang.api.pintang.controllers;
 
-import com.pitang.api.pintang.config.jwt.JWTUtil;
+import com.pitang.api.pintang.config.jwt.JWTToken;
 import com.pitang.api.pintang.dto.LoginDto;
 import com.pitang.api.pintang.dto.UserDto;
 import com.pitang.api.pintang.entities.Phone;
@@ -14,6 +14,9 @@ import com.pitang.api.pintang.services.PhoneService;
 import com.pitang.api.pintang.services.UserService;
 import com.pitang.api.pintang.util.Util;
 import com.pitang.api.pintang.validation.UserValidation;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.MalformedJwtException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -69,7 +72,7 @@ public class UserController {
                 p.setUser(u);
                 ps.persist(p);
             }
-            String token = JWTUtil.create(u.getEmail());
+            String token = JWTToken.create(u.getEmail());
             result = token;
         } catch (DataIntegrityViolationException | HibernateException e) {
             result = e.getMessage();
@@ -95,7 +98,7 @@ public class UserController {
         User u = null;
         try {
             u = us.findByEmailPassword(ld.getEmail(), ld.getPassword());
-            String token = JWTUtil.create(u.getEmail());
+            String token = JWTToken.create(u.getEmail());
             result = token;
         } catch (DataIntegrityViolationException | HibernateException e) {
             result = e.getMessage();
@@ -106,14 +109,23 @@ public class UserController {
     
     
     @GetMapping("me")
-    public String me(HttpServletResponse response, HttpServletRequest request){
-        request.getHeader("Authorization");
-        return "teste";
+    public ResponseEntity<Object> me(HttpServletResponse response, HttpServletRequest request){
+        UserDto dto = new UserDto();
+        try {
+            String authorization = request.getHeader("Authorization");
+            String[] jwt = Util.getJWT(authorization);
+            Jws<Claims> jws = JWTToken.decode(jwt[1].trim());
+            String email = jws.getBody().getIssuer();
+            dto = us.findByEmail(email);
+        } catch (MalformedJwtException | HibernateException e) {
+            String result = e.getMessage();
+            if(e.getClass().getName() == "io.jsonwebtoken.MalformedJwtException"){
+                result = "Unauthorized";
+            }
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }  
-
-    @GetMapping("teste")
-    public String teste(){
-        return "teste";
-    }    
+ 
     
 }

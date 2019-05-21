@@ -5,6 +5,7 @@
  */
 package com.pitang.api.pintang.services;
 
+import com.pitang.api.pintang.dto.UserDto;
 import com.pitang.api.pintang.entities.User;
 import com.pitang.api.pintang.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,9 @@ public class UserService {
     
     public User findByEmailPassword(String email, String password){
         return ur.findByEmailPassword(email, password);
+    }
+
+    public UserDto findByEmail(String email) {
+        return ur.findByEmail(email);
     }
 }

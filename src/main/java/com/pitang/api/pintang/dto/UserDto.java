@@ -19,6 +19,16 @@ import lombok.Data;
  */
 @Data
 public class UserDto {
+
+    public UserDto() {}
+
+    public UserDto(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
+    
     @NotEmpty(message = "Missing fields")
     @NotNull(message = "Missing fields")
     private String firstName;

@@ -16,16 +16,19 @@ import java.security.Key;
  *
  * @author felly
  */
-public class JWTUtil {
+public class JWTToken {
     
-    private static Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static Key key = Keys.hmacShaKeyFor("!@#QWE!@#QWE!@#QWE!@#QWE!@#QWE!@#QWE!@#QWE!@#QWE!@#QWE!@#QWE".getBytes());
 
     public static final String TOKEN_HEADER = "Authentication";
 
-    public static String create(String subject) {    
+    public static String create(String subject) {  
+	Calendar expira = Calendar.getInstance();
+	expira.add(Calendar.DAY_OF_MONTH, 1);
         return Jwts.builder()
                 .setIssuer(subject)
                 .signWith(key)
+                .setExpiration(expira.getTime())
                 .compact();
     }
 

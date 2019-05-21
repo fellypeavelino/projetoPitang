@@ -6,6 +6,7 @@
 package com.pitang.api.pintang.util;
 
 import java.util.List;
+import javax.xml.bind.DatatypeConverter;
 import org.springframework.validation.FieldError;
 
 /**
@@ -20,6 +21,11 @@ public class Util {
             error += listError.getField()+": "+listError.getDefaultMessage()+"\n";
         } 
         return error;
+    }
+    
+    public static String[] getJWT(String authorization){
+        String[] jwt = authorization.split("JWT");
+        return jwt;
     }
     
 }
